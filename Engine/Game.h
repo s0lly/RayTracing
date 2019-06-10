@@ -23,6 +23,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Camera.h"
 #include "Hitable.h"
 #include "Ray.h"
 #include "Vec3.h"
@@ -69,7 +70,10 @@ private:
 	/*  User Variables              */
 	/********************************/
 
-	Vec3 origin{ 0.0f, 0.0f, 0.0f };
+	Camera cam;
+
+	Hitable *list[2];
+	Hitable *world = new HitableList(list, 2);
 
 };
 

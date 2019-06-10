@@ -24,8 +24,11 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )
+	gfx( wnd ),
+	cam( gfx )
 {
+	list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f);
+	list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f);
 }
 
 void Game::Go()
@@ -40,27 +43,27 @@ void Game::UpdateModel()
 {
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
-		origin.z() -= 0.01f;
+		cam.origin.z() -= 0.01f;
 	}
 	if (wnd.kbd.KeyIsPressed('S'))
 	{
-		origin.z() += 0.01f;
+		cam.origin.z() += 0.01f;
 	}
 	if (wnd.kbd.KeyIsPressed('A'))
 	{
-		origin.x() -= 0.01f;
+		cam.origin.x() -= 0.01f;
 	}
 	if (wnd.kbd.KeyIsPressed('D'))
 	{
-		origin.x() += 0.01f;
+		cam.origin.x() += 0.01f;
 	}
 	if (wnd.kbd.KeyIsPressed('R'))
 	{
-		origin.y() += 0.01f;
+		cam.origin.y() += 0.01f;
 	}
 	if (wnd.kbd.KeyIsPressed('F'))
 	{
-		origin.y() -= 0.01f;
+		cam.origin.y() -= 0.01f;
 	}
 }
 
@@ -69,36 +72,29 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	
-	Vec3 botLeftOrigin = origin + Vec3{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, 0.0f };
-	Vec3 botLeft{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
-	Vec3 horizontal{ 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
-	Vec3 vertical{ 0.0f, 2.0f, 0.0f };
-
-	Hitable *list[2];
-
-	list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f);
-	list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f);
-
-	Hitable *world = new HitableList(list, 2);
+	int ns = 100;
 
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{
-		float v = (float)j / (float)gfx.ScreenHeight;
-
 		for (int i = 0; i < gfx.ScreenWidth; i++)
 		{
-			float u = (float)i / (float)gfx.ScreenWidth;
+			Vec3 col{ 0.0f, 0.0f, 0.0f };
 
-			Ray r{ origin, botLeft + horizontal * u + vertical * v };
+			for (int s = 0; s < ns; s++)
+			{
+				float u = (float)(i + ((float)(rand() % RAND_MAX) / (float)RAND_MAX)) / (float)gfx.ScreenWidth;
+				float v = (float)(j + ((float)(rand() % RAND_MAX) / (float)RAND_MAX)) / (float)gfx.ScreenHeight;
+				Ray r = cam.GetRay(u, v);
+				Vec3 p = r.PointOnRay(2.0f);
+				col += ReturnColorFromRay(r, world);
+			}
 
-			Vec3 p = r.PointOnRay(2.0f);
+			col /= (float)ns;
+			
 
-			Vec3 color = ReturnColorFromRay(r, world);
-
-			int ir = (int)(255.9999f * color.r());
-			int ig = (int)(255.9999f * color.g());
-			int ib = (int)(255.9999f * color.b());
+			int ir = (int)(255.9999f * col.r());
+			int ig = (int)(255.9999f * col.g());
+			int ib = (int)(255.9999f * col.b());
 
 			gfx.PutPixel(i, gfx.ScreenHeight - j - 1, Color(ir, ig, ib));
 		}
