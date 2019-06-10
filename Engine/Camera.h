@@ -17,17 +17,24 @@ struct Camera
 
 	// Functions
 
-	Camera(Graphics &gfx)
+	Camera(Graphics &gfx, Vec3 lookFrom, Vec3 lookAt, Vec3 vUp, float fov, float aspect)
 	{
-		origin = { 0.0f, 0.0f, 1.0f };
-		botLeft = { -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
-		horizontal = { 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
-		vertical = { 0.0f, 2.0f, 0.0f };
+		Vec3 u, v, w;
+		float theta = fov;
+		float halfHeight = tan(theta / 2.0f);
+		float halfWidth = aspect * halfHeight;
+		origin = lookFrom;
+		w = (lookFrom - lookAt).GetNormalized();
+		u = (vUp.Cross(w)).GetNormalized();
+		v = w.Cross(u);
+		botLeft = origin - u * halfWidth - v * halfHeight - w;
+		horizontal = u * 2.0f * halfWidth;
+		vertical = v * 2.0f * halfHeight;	
 	}
 
-	Ray GetRay(float u, float v)
+	Ray GetRay(float s, float t)
 	{
-		return Ray(origin, botLeft + horizontal * u + vertical * v); //- origin
+		return Ray(origin, botLeft + horizontal * s + vertical * t - origin);
 	}
 
 

@@ -128,7 +128,6 @@ struct Dielectric : public Material
 		}
 		else
 		{
-			//scattered = Ray(rec.p, refracted);
 			reflectProb = 1.0f;
 		}
 		if (((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) < reflectProb)
