@@ -38,6 +38,30 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	if (wnd.kbd.KeyIsPressed('W'))
+	{
+		origin.z() -= 0.01f;
+	}
+	if (wnd.kbd.KeyIsPressed('S'))
+	{
+		origin.z() += 0.01f;
+	}
+	if (wnd.kbd.KeyIsPressed('A'))
+	{
+		origin.x() -= 0.01f;
+	}
+	if (wnd.kbd.KeyIsPressed('D'))
+	{
+		origin.x() += 0.01f;
+	}
+	if (wnd.kbd.KeyIsPressed('R'))
+	{
+		origin.y() += 0.01f;
+	}
+	if (wnd.kbd.KeyIsPressed('F'))
+	{
+		origin.y() -= 0.01f;
+	}
 }
 
 
@@ -45,10 +69,12 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
+	
+	Vec3 botLeftOrigin = origin + Vec3{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, 0.0f };
 	Vec3 botLeft{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
 	Vec3 horizontal{ 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
 	Vec3 vertical{ 0.0f, 2.0f, 0.0f };
-	Vec3 origin{ 0.0f, 0.0f, 0.0f };
+	
 
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{

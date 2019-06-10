@@ -35,12 +35,25 @@ public:
 	Game& operator=( const Game& ) = delete;
 	void Go();
 
+	bool DoesRayHitSphere(Vec3 &center, float radius, Ray &r)
+	{
+		Vec3 oc = r.Origin() - center;
+		float a = r.Direction().Dot(r.Direction());
+		float b = 2.0f * oc.Dot(r.Direction());
+		float c = oc.Dot(oc) - radius * radius;
+		float discriminant = b * b - 4 * a * c;
 
+		return (discriminant > 0);
+	}
 
 	Vec3 ReturnColorFromRay(Ray& ray)
 	{
-		Vec3 unitDirection = ray.Direction().GetNormalized();
+		if (DoesRayHitSphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, ray))
+		{
+			return Vec3(1.0f, 0.0f, 0.0f);
+		}
 
+		Vec3 unitDirection = ray.Direction().GetNormalized();
 		float t = 0.5f * (unitDirection.y() + 1.0f);
 		return Vec3{ 1.0f, 1.0f, 1.0f } * (1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } * (t);
 	}
@@ -60,5 +73,8 @@ private:
 	/********************************/
 	/*  User Variables              */
 	/********************************/
+
+	Vec3 origin{ 0.0f, 0.0f, 0.0f };
+
 };
 
