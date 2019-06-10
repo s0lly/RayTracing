@@ -40,32 +40,34 @@ void Game::UpdateModel()
 {
 }
 
+
+
+
 void Game::ComposeFrame()
 {
-	// Draw background
-
-	Vec3 colorWhite{ 1.0f, 1.0f, 1.0f };
-	Vec3 colorBlue{ 0.5f, 0.7f, 1.0f };
+	Vec3 botLeft{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
+	Vec3 horizontal{ 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
+	Vec3 vertical{ 0.0f, 2.0f, 0.0f };
+	Vec3 origin{ 0.0f, 0.0f, 0.0f };
 
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{
-		float t = (float)j / (float)gfx.ScreenHeight;
-
-		Vec3 color = colorWhite * (1 - t) + colorBlue * (t);
-
-		int ir = (int)(255.9999f * color.r());
-		int ig = (int)(255.9999f * color.g());
-		int ib = (int)(255.9999f * color.b());
+		float v = (float)j / (float)gfx.ScreenHeight;
 
 		for (int i = 0; i < gfx.ScreenWidth; i++)
 		{
+			float u = (float)i / (float)gfx.ScreenWidth;
+
+			Ray r{ origin, botLeft + horizontal * u + vertical * v };
+
+			Vec3 color = ReturnColorFromRay(r);
+
+			int ir = (int)(255.9999f * color.r());
+			int ig = (int)(255.9999f * color.g());
+			int ib = (int)(255.9999f * color.b());
+
 			gfx.PutPixel(i, gfx.ScreenHeight - j - 1, Color(ir, ig, ib));
 		}
 	}
-
-
-
-
-
 	
 }

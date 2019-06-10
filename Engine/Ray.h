@@ -24,5 +24,7 @@ struct Ray
 	Vec3 Direction() { return b; };
 	Vec3 PointOnRay(float t) { return (a + b * t); };
 
+	
+
 
 };

@@ -23,7 +23,9 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Ray.h"
 #include "Vec3.h"
+
 
 class Game
 {
@@ -32,6 +34,20 @@ public:
 	Game( const Game& ) = delete;
 	Game& operator=( const Game& ) = delete;
 	void Go();
+
+
+
+	Vec3 ReturnColorFromRay(Ray& ray)
+	{
+		Vec3 unitDirection = ray.Direction().GetNormalized();
+
+		float t = 0.5f * (unitDirection.y() + 1.0f);
+		return Vec3{ 1.0f, 1.0f, 1.0f } * (1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } * (t);
+	}
+
+
+
+
 private:
 	void ComposeFrame();
 	void UpdateModel();
@@ -45,3 +61,4 @@ private:
 	/*  User Variables              */
 	/********************************/
 };
+
