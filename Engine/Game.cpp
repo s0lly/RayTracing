@@ -42,20 +42,30 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
+	// Draw background
+
+	Vec3 colorWhite{ 1.0f, 1.0f, 1.0f };
+	Vec3 colorBlue{ 0.5f, 0.7f, 1.0f };
+
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{
+		float t = (float)j / (float)gfx.ScreenHeight;
+
+		Vec3 color = colorWhite * (1 - t) + colorBlue * (t);
+
+		int ir = (int)(255.9999f * color.r());
+		int ig = (int)(255.9999f * color.g());
+		int ib = (int)(255.9999f * color.b());
+
 		for (int i = 0; i < gfx.ScreenWidth; i++)
 		{
-			Vec3 color{ (float)i / (float)gfx.ScreenWidth,
-						(float)j / (float)gfx.ScreenHeight,
-						0.2f };
-
-			int ir = (int)(255.9999f * color.r());
-			int ig = (int)(255.9999f * color.g());
-			int ib = (int)(255.9999f * color.b());
-
 			gfx.PutPixel(i, gfx.ScreenHeight - j - 1, Color(ir, ig, ib));
 		}
 	}
+
+
+
+
+
 	
 }
