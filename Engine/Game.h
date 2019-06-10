@@ -86,8 +86,8 @@ private:
 
 	Camera cam;
 
-	Hitable *list[4];
-	Hitable *world = new HitableList(list, 4);
+	Hitable *list[5];
+	Hitable *world = new HitableList(list, 5);
 
 };
 
