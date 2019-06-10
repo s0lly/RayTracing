@@ -74,7 +74,13 @@ void Game::ComposeFrame()
 	Vec3 botLeft{ -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
 	Vec3 horizontal{ 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
 	Vec3 vertical{ 0.0f, 2.0f, 0.0f };
-	
+
+	Hitable *list[2];
+
+	list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f);
+	list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f);
+
+	Hitable *world = new HitableList(list, 2);
 
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{
@@ -86,7 +92,9 @@ void Game::ComposeFrame()
 
 			Ray r{ origin, botLeft + horizontal * u + vertical * v };
 
-			Vec3 color = ReturnColorFromRay(r);
+			Vec3 p = r.PointOnRay(2.0f);
+
+			Vec3 color = ReturnColorFromRay(r, world);
 
 			int ir = (int)(255.9999f * color.r());
 			int ig = (int)(255.9999f * color.g());

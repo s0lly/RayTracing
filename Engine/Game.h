@@ -23,8 +23,10 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Hitable.h"
 #include "Ray.h"
 #include "Vec3.h"
+#include "float.h"
 
 
 class Game
@@ -35,37 +37,20 @@ public:
 	Game& operator=( const Game& ) = delete;
 	void Go();
 
-	float DoesRayHitSphere(Vec3 &center, float radius, Ray &r)
-	{
-		Vec3 oc = r.Origin() - center;
-		float a = r.Direction().Dot(r.Direction());
-		float b = 2.0f * oc.Dot(r.Direction());
-		float c = oc.Dot(oc) - radius * radius;
-		float discriminant = b * b - 4 * a * c;
 
-		if (discriminant < 0.0f)
+	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world)
+	{
+		HitRecord rec;
+		if (world->Hit(ray, 0.0f, 10000000000000000.0f, rec))
 		{
-			return -1.0f;
+			return ((rec.normal + Vec3{ 1.0f, 1.0f, 1.0f }) * 0.5f);
 		}
 		else
 		{
-			return (-b - sqrt(discriminant)) / (2.0f * a);
+			Vec3 unitDirection = ray.Direction().GetNormalized();
+			float t = 0.5f * (unitDirection.y() + 1.0f);
+			return Vec3{ 1.0f, 1.0f, 1.0f } *(1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } *(t);
 		}
-
-	}
-
-	Vec3 ReturnColorFromRay(Ray& ray)
-	{
-		float t = (DoesRayHitSphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, ray));
-		if (t > 0.0f)
-		{
-			Vec3 n = (ray.PointOnRay(t) - Vec3(0.0f, 0.0f, -1.0f)).GetNormalized();
-			return ((n + Vec3{ 1.0f, 1.0f, 1.0f }) * 0.5f);
-		}
-
-		Vec3 unitDirection = ray.Direction().GetNormalized();
-		t = 0.5f * (unitDirection.y() + 1.0f);
-		return Vec3{ 1.0f, 1.0f, 1.0f } * (1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } * (t);
 	}
 
 
