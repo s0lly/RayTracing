@@ -29,6 +29,7 @@
 #include "Vec3.h"
 #include "float.h"
 #include "Material.h"
+#include <thread>
 
 
 class Game
@@ -38,37 +39,6 @@ public:
 	Game( const Game& ) = delete;
 	Game& operator=( const Game& ) = delete;
 	void Go();
-
-
-	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
-	{
-		
-		HitRecord rec;
-		if (world->Hit(ray, 0.0001f, 10000000000000000.0f, rec))
-		{
-			depth++;
-			Ray scattered;
-			Vec3 attenutation;
-
-			if (depth < 50 && rec.matPtr->scatter(ray, rec, attenutation, scattered))
-			{
-				return ReturnColorFromRay(scattered, world, depth) * attenutation;
-			}
-			else
-			{
-				return Vec3(0.0f, 0.0f, 0.0f);
-			}
-				
-		}
-		else
-		{
-			Vec3 unitDirection = ray.Direction().GetNormalized();
-			float t = 0.5f * (unitDirection.y() + 1.0f);
-			return Vec3{ 1.0f, 1.0f, 1.0f } *(1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } *(t);
-		}
-	}
-
-
 
 
 private:
@@ -86,8 +56,35 @@ private:
 
 	Camera cam;
 
-	Hitable *list[5];
-	Hitable *world = new HitableList(list, 5);
+	Hitable *world;
 
+	int numObjects;
 };
 
+static Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
+{
+
+	HitRecord rec;
+	if (world->Hit(ray, 0.0001f, 10000000000000000.0f, rec))
+	{
+		depth++;
+		Ray scattered;
+		Vec3 attenutation;
+
+		if (depth < 50 && rec.matPtr->scatter(ray, rec, attenutation, scattered))
+		{
+			return ReturnColorFromRay(scattered, world, depth) * attenutation;
+		}
+		else
+		{
+			return Vec3(0.0f, 0.0f, 0.0f);
+		}
+
+	}
+	else
+	{
+		Vec3 unitDirection = ray.Direction().GetNormalized();
+		float t = 0.5f * (unitDirection.y() + 1.0f);
+		return Vec3{ 1.0f, 1.0f, 1.0f } *(1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } *(t);
+	}
+}

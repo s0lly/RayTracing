@@ -142,4 +142,17 @@ struct Vec3
 				x() * rhs.y() - y() * rhs.x()};
 	}
 
+	Vec3 RotateAroundArbitraryAxis(Vec3 &axis, float radians)
+	{
+		Vec3 returnVec;
+
+		float cos = cosf(radians);
+		float sin = sinf(radians);
+
+		returnVec = Vec3(axis.x() * (axis.x() * x() + axis.y() * y() + axis.z() * z()) * (1 - cos) + x() * cos + (-axis.z() * y() + axis.y() * z()) * sin,
+			axis.y() * (axis.x() * x() + axis.y() * y() + axis.z() * z()) * (1 - cos) + y() * cos + (-axis.x() * z() + axis.z() * x()) * sin,
+			axis.z() * (axis.x() * x() + axis.y() * y() + axis.z() * z()) * (1 - cos) + z() * cos + (-axis.y() * x() + axis.x() * y()) * sin);
+
+		return returnVec;
+	}
 };

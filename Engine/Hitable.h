@@ -6,6 +6,11 @@
 
 struct Material;
 
+
+
+
+
+
 struct HitRecord
 {
 	float t;
@@ -95,3 +100,4 @@ struct HitableList : public Hitable
 		return hitAnything;
 	}
 };
+

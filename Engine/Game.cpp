@@ -25,13 +25,57 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	cam( gfx, Vec3(-2.0f, 2.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f), PI / 4.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight)
+	cam( gfx, Vec3(0.0f, 2.0f, 2.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length())
 {
-	list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(Vec3(0.1f, 0.2f, 0.5f)));
-	list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(Vec3(0.8f, 0.8f, 0.0f)));
-	list[2] = new Sphere(Vec3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(Vec3(0.8f, 0.6f, 0.2f), 1.0f));
-	list[3] = new Sphere(Vec3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f));
-	list[4] = new Sphere(Vec3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f));
+	//list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(Vec3(0.1f, 0.2f, 0.5f)));
+	//list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(Vec3(0.8f, 0.8f, 0.0f)));
+	//list[2] = new Sphere(Vec3(1.0f, 0.0f, -1.0f), 0.5f, new Metal(Vec3(0.8f, 0.6f, 0.2f), 1.0f));
+	//list[3] = new Sphere(Vec3(-1.0f, 0.0f, -1.0f), 0.5f, new Dielectric(1.5f));
+	//list[4] = new Sphere(Vec3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f));
+
+
+	int n = 500;
+	Hitable **list = new Hitable*[n+1];
+	list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(Vec3(0.5f, 0.5f, 0.5f)));
+	int i = 1;
+	for (int a = -11; a < 11; a++)
+	{
+		for (int b = -11; b < 11; b++)
+		{
+			if (i < n - 3)
+			{
+				float chooseMat = ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1));
+				Vec3 center(a + 0.9f * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), 0.2f, b + 0.9f * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)));
+				if ((center - Vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+				{
+					if (chooseMat < 0.8f)
+					{
+						list[i++] = new Sphere(center, 0.2f, new Lambertian(Vec3(((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)),
+							((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)))));
+					}
+					else if (chooseMat < 0.95f)
+					{
+						list[i++] = new Sphere(center, 0.2f, new Metal(Vec3(0.5f * (1.0f + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))),
+							0.5f * (1.0f + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))), 0.5f * (1.0f + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)))), 0.5f * ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))));
+					}
+					else
+					{
+						list[i++] = new Sphere(center, 0.2f, new Dielectric(1.5f));
+					}
+				}
+			}
+		}
+	}
+
+	list[i++] = new Sphere(Vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
+	list[i++] = new Sphere(Vec3(-4.0f, 1.0f, 0.0f), 1.0f, new Lambertian(Vec3(0.4f, 0.2f, 0.1f)));
+	list[i++] = new Sphere(Vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(Vec3(0.7f, 0.6f, 0.5f), 0.0f));
+
+
+	world = new HitableList(list, i);
+
+	numObjects = i;
 }
 
 void Game::Go()
@@ -46,31 +90,65 @@ void Game::UpdateModel()
 {
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
-		cam.origin.z() -= 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, -0.1f), cam.lookAt + Vec3(0.0f, 0.0f, -0.1f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 	if (wnd.kbd.KeyIsPressed('S'))
 	{
-		cam.origin.z() += 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, 0.1f), cam.lookAt + Vec3(0.0f, 0.0f, 0.1f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 	if (wnd.kbd.KeyIsPressed('A'))
 	{
-		cam.origin.x() -= 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(-0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(-0.1f, 0.0f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 	if (wnd.kbd.KeyIsPressed('D'))
 	{
-		cam.origin.x() += 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(0.1f, 0.0f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 	if (wnd.kbd.KeyIsPressed('R'))
 	{
-		cam.origin.y() += 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.1f, 0.0f), cam.lookAt + Vec3(0.0f, 0.1f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 	if (wnd.kbd.KeyIsPressed('F'))
 	{
-		cam.origin.y() -= 0.1f;
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, -0.1f, 0.0f), cam.lookAt + Vec3(0.0f, -0.1f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
 	}
 
-
-
+	if (wnd.kbd.KeyIsPressed('J'))
+	{
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, 0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
+	if (wnd.kbd.KeyIsPressed('L'))
+	{
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, -0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
+	if (wnd.kbd.KeyIsPressed('I'))
+	{
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, 0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
+	if (wnd.kbd.KeyIsPressed('K'))
+	{
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, -0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
+	if (wnd.kbd.KeyIsPressed('U'))
+	{
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, 0.1f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
+	if (wnd.kbd.KeyIsPressed('O'))
+	{
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, -0.1f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+	}
 
 
 
@@ -86,32 +164,48 @@ void Game::ComposeFrame()
 {
 	int ns = 1;
 
-	for (int j = 0; j < gfx.ScreenHeight; j++)
+	auto *gfxPtr = &gfx;
+	auto *worldPtr = &world;
+	auto *camPtr = &cam;
+
+	int numThreads = 20;
+	int threadSize = gfx.ScreenHeight / numThreads + 1;
+
+	std::vector<std::thread> threadList;
+	for (int k = 0; k < numThreads; k++)
 	{
-		for (int i = 0; i < gfx.ScreenWidth; i++)
+		threadList.push_back(std::thread([k, ns, threadSize, gfxPtr, worldPtr, camPtr]()
 		{
-			Vec3 col{ 0.0f, 0.0f, 0.0f };
-
-			for (int s = 0; s < ns; s++)
+			for (int j = k * threadSize; (j < (k + 1) * threadSize) && (j < (gfxPtr->ScreenHeight)); j++)
 			{
-				float u = (float)(i + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfx.ScreenWidth;
-				float v = (float)(j + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfx.ScreenHeight;
-				Ray r = cam.GetRay(u, v);
-				Vec3 p = r.PointOnRay(2.0f);
-				col += ReturnColorFromRay(r, world, 0);
+
+				for (int i = 0; i < gfxPtr->ScreenWidth; i++)
+				{
+					Vec3 col{ 0.0f, 0.0f, 0.0f };
+
+					for (int s = 0; s < ns; s++)
+					{
+						float u = (float)(i + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfxPtr->ScreenWidth;
+						float v = (float)(j + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfxPtr->ScreenHeight;
+						Ray r = camPtr->GetRay(u, v);
+						Vec3 p = r.PointOnRay(2.0f);
+						col += ReturnColorFromRay(r, *worldPtr, 0);
+					}
+
+					col /= (float)ns;
+
+					col = Vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
+
+
+					int ir = (int)(255.9999f * col.r());
+					int ig = (int)(255.9999f * col.g());
+					int ib = (int)(255.9999f * col.b());
+
+					gfxPtr->PutPixel(i, gfxPtr->ScreenHeight - j - 1, Color(ir, ig, ib));
+				}
 			}
-
-			col /= (float)ns;
-
-			col = Vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
-			
-
-			int ir = (int)(255.9999f * col.r());
-			int ig = (int)(255.9999f * col.g());
-			int ib = (int)(255.9999f * col.b());
-
-			gfx.PutPixel(i, gfx.ScreenHeight - j - 1, Color(ir, ig, ib));
-		}
+		}));
 	}
+	std::for_each(threadList.begin(), threadList.end(), std::mem_fn(&std::thread::join));
 	
 }
