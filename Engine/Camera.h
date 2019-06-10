@@ -19,7 +19,7 @@ struct Camera
 
 	Camera(Graphics &gfx)
 	{
-		origin = { 0.0f, 0.0f, 0.0f };
+		origin = { 0.0f, 0.0f, 1.0f };
 		botLeft = { -(float)gfx.ScreenWidth / (float)gfx.ScreenHeight, -1.0f, -1.0f };
 		horizontal = { 2.0f * (float)gfx.ScreenWidth / (float)gfx.ScreenHeight, 0.0f, 0.0f };
 		vertical = { 0.0f, 2.0f, 0.0f };

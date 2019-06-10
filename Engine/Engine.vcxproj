@@ -147,6 +147,7 @@
     <ClInclude Include="Hitable.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Resource.h" />

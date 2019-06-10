@@ -2,11 +2,16 @@
 
 #include "Ray.h"
 
+
+
+struct Material;
+
 struct HitRecord
 {
 	float t;
 	Vec3 p;
 	Vec3 normal;
+	Material *matPtr;
 };
 
 struct Hitable
@@ -21,12 +26,12 @@ struct Sphere : public Hitable
 
 	Vec3 center;
 	float radius;
-
+	Material *matPtr;
 
 	// Functions
 
 	Sphere() {}
-	Sphere(Vec3 cen, float r) : center(cen), radius(r) {};
+	Sphere(Vec3 cen, float r, Material *in_matPtr) : center(cen), radius(r), matPtr(in_matPtr) {};
 	virtual bool Hit(Ray &r, float t_min, float t_max, HitRecord &rec)
 	{
 		Vec3 oc = r.Origin() - center;
@@ -43,6 +48,7 @@ struct Sphere : public Hitable
 				rec.t = temp;
 				rec.p = r.PointOnRay(rec.t);
 				rec.normal = (rec.p - center) / radius;
+				rec.matPtr = matPtr;
 				return true;
 			}
 			temp = (-b + sqrt(discriminant)) / (a);
@@ -51,6 +57,7 @@ struct Sphere : public Hitable
 				rec.t = temp;
 				rec.p = r.PointOnRay(rec.t);
 				rec.normal = (rec.p - center) / radius;
+				rec.matPtr = matPtr;
 				return true;
 			}
 		}

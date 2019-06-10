@@ -28,6 +28,7 @@
 #include "Ray.h"
 #include "Vec3.h"
 #include "float.h"
+#include "Material.h"
 
 
 class Game
@@ -39,34 +40,19 @@ public:
 	void Go();
 
 
-
-	Vec3 RandomUnitInSphere()
-	{
-		Vec3 p;
-
-		do
-		{
-			p = Vec3(((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) * 2.0f - Vec3(1.0f, 1.0f, 1.0f);
-
-		} while (p.lengthSqrd() >= 1.0f);
-
-		return p;
-	}
-
-
-
-
-	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int rayNum)
+	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
 	{
 		
 		HitRecord rec;
 		if (world->Hit(ray, 0.0001f, 10000000000000000.0f, rec))
 		{
-			rayNum++;
-			Vec3 target = rec.p + rec.normal + RandomUnitInSphere();
-			if (rayNum < 10)
+			depth++;
+			Ray scattered;
+			Vec3 attenutation;
+
+			if (depth < 50 && rec.matPtr->scatter(ray, rec, attenutation, scattered))
 			{
-				return ReturnColorFromRay(Ray(rec.p, target - rec.p), world, rayNum) * 0.5f;
+				return ReturnColorFromRay(scattered, world, depth) * attenutation;
 			}
 			else
 			{
@@ -100,8 +86,8 @@ private:
 
 	Camera cam;
 
-	Hitable *list[2];
-	Hitable *world = new HitableList(list, 2);
+	Hitable *list[4];
+	Hitable *world = new HitableList(list, 4);
 
 };
 
