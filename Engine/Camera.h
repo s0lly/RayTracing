@@ -27,7 +27,7 @@ struct Camera
 
 	Ray GetRay(float u, float v)
 	{
-		return Ray(origin, botLeft + horizontal * u + vertical * v);
+		return Ray(origin, botLeft + horizontal * u + vertical * v); //- origin
 	}
 
 

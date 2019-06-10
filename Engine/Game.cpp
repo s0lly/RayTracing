@@ -43,27 +43,27 @@ void Game::UpdateModel()
 {
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
-		cam.origin.z() -= 0.01f;
+		cam.origin.z() -= 0.1f;
 	}
 	if (wnd.kbd.KeyIsPressed('S'))
 	{
-		cam.origin.z() += 0.01f;
+		cam.origin.z() += 0.1f;
 	}
 	if (wnd.kbd.KeyIsPressed('A'))
 	{
-		cam.origin.x() -= 0.01f;
+		cam.origin.x() -= 0.1f;
 	}
 	if (wnd.kbd.KeyIsPressed('D'))
 	{
-		cam.origin.x() += 0.01f;
+		cam.origin.x() += 0.1f;
 	}
 	if (wnd.kbd.KeyIsPressed('R'))
 	{
-		cam.origin.y() += 0.01f;
+		cam.origin.y() += 0.1f;
 	}
 	if (wnd.kbd.KeyIsPressed('F'))
 	{
-		cam.origin.y() -= 0.01f;
+		cam.origin.y() -= 0.1f;
 	}
 }
 
@@ -72,7 +72,7 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	int ns = 100;
+	int ns = 4;
 
 	for (int j = 0; j < gfx.ScreenHeight; j++)
 	{
@@ -82,14 +82,16 @@ void Game::ComposeFrame()
 
 			for (int s = 0; s < ns; s++)
 			{
-				float u = (float)(i + ((float)(rand() % RAND_MAX) / (float)RAND_MAX)) / (float)gfx.ScreenWidth;
-				float v = (float)(j + ((float)(rand() % RAND_MAX) / (float)RAND_MAX)) / (float)gfx.ScreenHeight;
+				float u = (float)(i + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfx.ScreenWidth;
+				float v = (float)(j + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfx.ScreenHeight;
 				Ray r = cam.GetRay(u, v);
 				Vec3 p = r.PointOnRay(2.0f);
-				col += ReturnColorFromRay(r, world);
+				col += ReturnColorFromRay(r, world, 0);
 			}
 
 			col /= (float)ns;
+
+			col = Vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
 			
 
 			int ir = (int)(255.9999f * col.r());

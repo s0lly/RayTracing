@@ -39,12 +39,40 @@ public:
 	void Go();
 
 
-	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world)
+
+	Vec3 RandomUnitInSphere()
 	{
-		HitRecord rec;
-		if (world->Hit(ray, 0.0f, 10000000000000000.0f, rec))
+		Vec3 p;
+
+		do
 		{
-			return ((rec.normal + Vec3{ 1.0f, 1.0f, 1.0f }) * 0.5f);
+			p = Vec3(((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)), ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) * 2.0f - Vec3(1.0f, 1.0f, 1.0f);
+
+		} while (p.lengthSqrd() >= 1.0f);
+
+		return p;
+	}
+
+
+
+
+	Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int rayNum)
+	{
+		
+		HitRecord rec;
+		if (world->Hit(ray, 0.0001f, 10000000000000000.0f, rec))
+		{
+			rayNum++;
+			Vec3 target = rec.p + rec.normal + RandomUnitInSphere();
+			if (rayNum < 10)
+			{
+				return ReturnColorFromRay(Ray(rec.p, target - rec.p), world, rayNum) * 0.5f;
+			}
+			else
+			{
+				return Vec3(0.0f, 0.0f, 0.0f);
+			}
+				
 		}
 		else
 		{
