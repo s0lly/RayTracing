@@ -92,32 +92,32 @@ void Game::UpdateModel()
 {
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, -0.1f), cam.lookAt + Vec3(0.0f, 0.0f, -0.1f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin - cam.w / 10.0f, cam.lookAt - cam.w / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('S'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, 0.1f), cam.lookAt + Vec3(0.0f, 0.0f, 0.1f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin + cam.w / 10.0f, cam.lookAt + cam.w / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('A'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(-0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(-0.1f, 0.0f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin - cam.u / 10.0f, cam.lookAt - cam.u / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('D'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(0.1f, 0.0f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin + cam.u / 10.0f, cam.lookAt + cam.u / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('R'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.1f, 0.0f), cam.lookAt + Vec3(0.0f, 0.1f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin + cam.v / 10.0f, cam.lookAt + cam.v / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('F'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, -0.1f, 0.0f), cam.lookAt + Vec3(0.0f, -0.1f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam = Camera(gfx, cam.origin - cam.v / 10.0f, cam.lookAt - cam.v / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 			cam.aperture, cam.focusDist);
 	}
 
@@ -154,13 +154,13 @@ void Game::UpdateModel()
 
 	if (wnd.kbd.KeyIsPressed('Z'))
 	{
-		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			cam.aperture, cam.focusDist * 1.1f);
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov * 1.1f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('X'))
 	{
-		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			cam.aperture, cam.focusDist / 1.1f);
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov / 1.1f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 
 	int check = wnd.mouse.GetPosY();
