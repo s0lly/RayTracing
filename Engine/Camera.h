@@ -28,12 +28,18 @@ struct Camera
 	Vec3 u, v, w;
 	Vec3 lookAt;
 	Vec3 vUp;
+	float fov;
 	float lensRadius;
+	float aperture;
+	float focusDist;
 
 	// Functions
 
-	Camera(Graphics &gfx, Vec3 lookFrom, Vec3 in_lookAt, Vec3 in_vUp, float fov, float aspect, float aperture, float focusDist)
+	Camera(Graphics &gfx, Vec3 lookFrom, Vec3 in_lookAt, Vec3 in_vUp, float in_fov, float aspect, float in_aperture, float in_focusDist)
 	{
+		fov = in_fov;
+		aperture = in_aperture;
+		focusDist = in_focusDist;
 		lookAt = in_lookAt;
 		vUp = in_vUp;
 		lensRadius = aperture / 2.0f;

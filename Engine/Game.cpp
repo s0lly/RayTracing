@@ -25,8 +25,8 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	cam( gfx, Vec3(0.0f, 2.0f, 2.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-		0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length())
+	cam( gfx, Vec3(0.0f, 2.0f, 2.0f), Vec3(0.0f, 0.0f, -1.0f).GetNormalized(), Vec3(0.0f, 1.0f, 0.0f), PI / 4.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		0.1f, (Vec3(0.0f, 2.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length())
 {
 	//list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(Vec3(0.1f, 0.2f, 0.5f)));
 	//list[1] = new Sphere(Vec3(0.0f, -100.5f, -1.0f), 100.0f, new Lambertian(Vec3(0.8f, 0.8f, 0.0f)));
@@ -35,7 +35,7 @@ Game::Game( MainWindow& wnd )
 	//list[4] = new Sphere(Vec3(-1.0f, 0.0f, -1.0f), -0.45f, new Dielectric(1.5f));
 
 
-	int n = 500;
+	int n = 20;
 	Hitable **list = new Hitable*[n+1];
 	list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new Lambertian(Vec3(0.5f, 0.5f, 0.5f)));
 	int i = 1;
@@ -90,70 +90,79 @@ void Game::UpdateModel()
 {
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, -0.1f), cam.lookAt + Vec3(0.0f, 0.0f, -0.1f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, -0.1f), cam.lookAt + Vec3(0.0f, 0.0f, -0.1f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('S'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, 0.1f), cam.lookAt + Vec3(0.0f, 0.0f, 0.1f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.0f, 0.1f), cam.lookAt + Vec3(0.0f, 0.0f, 0.1f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('A'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(-0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(-0.1f, 0.0f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(-0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(-0.1f, 0.0f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('D'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(0.1f, 0.0f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(0.1f, 0.0f, 0.0f), cam.lookAt + Vec3(0.1f, 0.0f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('R'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.1f, 0.0f), cam.lookAt + Vec3(0.0f, 0.1f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, 0.1f, 0.0f), cam.lookAt + Vec3(0.0f, 0.1f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('F'))
 	{
-		cam = Camera(gfx, cam.origin + Vec3(0.0f, -0.1f, 0.0f), cam.lookAt + Vec3(0.0f, -0.1f, 0.0f), cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin + Vec3(0.0f, -0.1f, 0.0f), cam.lookAt + Vec3(0.0f, -0.1f, 0.0f), cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 
 	if (wnd.kbd.KeyIsPressed('J'))
 	{
-		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, 0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, 0.1f) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('L'))
 	{
-		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, -0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, -0.1f) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('I'))
 	{
-		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, 0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, 0.1f) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('K'))
 	{
-		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, -0.1f) + cam.origin, cam.vUp, PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, -0.1f) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('U'))
 	{
-		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, 0.1f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, 0.1f), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
 	}
 	if (wnd.kbd.KeyIsPressed('O'))
 	{
-		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, -0.1f), PI / 2.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
-			0.001f, (Vec3(3.0f, 3.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length());
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp).RotateAroundArbitraryAxis(cam.w, -0.1f), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist);
+	}
+
+	if (wnd.kbd.KeyIsPressed('Z'))
+	{
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist * 1.1f);
+	}
+	if (wnd.kbd.KeyIsPressed('X'))
+	{
+		cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+			cam.aperture, cam.focusDist / 1.1f);
 	}
 
 
-
-
-
+	cam.lookAt.GetNormalized();
 
 }
 
@@ -162,7 +171,40 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	int ns = 1;
+	float firstHitSqrd = 100000000000000000.0f;
+	float min_t = 999999999.9f;
+	for (int i = 0; i < 1; i++)
+	{
+		float uCenter = 0.5f;
+		float vCenter = 0.5f;
+		Ray r = cam.GetRay(uCenter, vCenter);
+		HitRecord rec;
+		world->Hit(r, 0.0001f, 10000000000000000.0f, rec);
+		//min_t = min_t < rec.t ? min_t : rec.t;
+		firstHitSqrd = std::min(firstHitSqrd, (cam.origin - rec.p).lengthSqrd());
+		
+	}
+
+	float distMultToMove = sqrt(firstHitSqrd) / cam.focusDist;
+
+	//float distToMoveDir = 1.0f;
+	//
+	//if (distToMove < 0.0f)
+	//{
+	//	distToMoveDir = -1.0f;
+	//}
+	//
+	//distToMove = (abs(distToMove) > 1.0f ? 1.0f : abs(distToMove)) * distToMoveDir;
+	distMultToMove = distMultToMove > 1.5f ? 1.5f : distMultToMove;
+
+	distMultToMove = distMultToMove * cam.focusDist;
+	
+	cam.focusDist = cam.focusDist * 0.6f + distMultToMove * 0.4f; //sqrt(firstHitSqrd);// 
+
+	cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam.aperture, cam.focusDist);
+
+	int ns = 2;
 
 	auto *gfxPtr = &gfx;
 	auto *worldPtr = &world;
