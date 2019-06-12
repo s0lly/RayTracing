@@ -76,6 +76,8 @@ Game::Game( MainWindow& wnd )
 	world = new HitableList(list, i);
 
 	numObjects = i;
+
+	
 }
 
 void Game::Go()
@@ -161,9 +163,20 @@ void Game::UpdateModel()
 			cam.aperture, cam.focusDist / 1.1f);
 	}
 
+	int check = wnd.mouse.GetPosY();
+	float moveUp = (float)((gfx.ScreenHeight / 2) - wnd.mouse.GetPosY()) / 2000.0f;
+	float moveSide = (float)((gfx.ScreenWidth / 2) - wnd.mouse.GetPosX()) / 2000.0f;
+	cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.u, moveUp) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam.aperture, cam.focusDist);
+	cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, moveSide) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		cam.aperture, cam.focusDist);
+
+
 
 	cam.lookAt.GetNormalized();
 
+	SetCursorPos(560 + gfx.ScreenWidth / 2, 315 + gfx.ScreenHeight / 2);
+	SetCursor(NULL);
 }
 
 
@@ -204,7 +217,7 @@ void Game::ComposeFrame()
 	cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 		cam.aperture, cam.focusDist);
 
-	int ns = 2;
+	int ns = 1;
 
 	auto *gfxPtr = &gfx;
 	auto *worldPtr = &world;
@@ -249,5 +262,19 @@ void Game::ComposeFrame()
 		}));
 	}
 	std::for_each(threadList.begin(), threadList.end(), std::mem_fn(&std::thread::join));
+
+
+	for (int i = gfx.ScreenWidth / 2 - 5; i <= gfx.ScreenWidth / 2 + 5; i++)
+	{
+		for (int j = gfx.ScreenHeight / 2 - 5; j <= gfx.ScreenHeight / 2 + 5; j++)
+		{
+			if (i == gfx.ScreenWidth / 2 - 5 || i == gfx.ScreenWidth / 2 + 5 ||
+				j == gfx.ScreenHeight / 2 - 5 || j == gfx.ScreenHeight / 2 + 5)
+			{
+				gfx.PutPixel(i, j, Colors::Magenta);
+			}
+		}
+	}
+	
 	
 }

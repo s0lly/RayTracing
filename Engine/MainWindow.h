@@ -33,10 +33,11 @@ class HWNDKey
 public:
 	HWNDKey( const HWNDKey& ) = delete;
 	HWNDKey& operator=( HWNDKey& ) = delete;
+	HWND hWnd = nullptr;
 protected:
 	HWNDKey() = default;
 protected:
-	HWND hWnd = nullptr;
+	
 };
 
 class MainWindow : public HWNDKey
