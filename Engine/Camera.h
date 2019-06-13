@@ -32,11 +32,16 @@ struct Camera
 	float lensRadius;
 	float aperture;
 	float focusDist;
+	float time0, time1;
+	float halfHeight;
+	float halfWidth;
 
 	// Functions
 
-	Camera(Graphics &gfx, Vec3 lookFrom, Vec3 in_lookAt, Vec3 in_vUp, float in_fov, float aspect, float in_aperture, float in_focusDist)
+	Camera(Graphics &gfx, Vec3 lookFrom, Vec3 in_lookAt, Vec3 in_vUp, float in_fov, float aspect, float in_aperture, float in_focusDist, float t0 = 0.0f, float t1 = 1.0f)
 	{
+		time0 = t0;
+		time1 = t1;
 		fov = in_fov;
 		aperture = in_aperture;
 		focusDist = in_focusDist;
@@ -44,8 +49,8 @@ struct Camera
 		vUp = in_vUp;
 		lensRadius = aperture / 2.0f;
 		float theta = fov;
-		float halfHeight = tan(theta / 2.0f);
-		float halfWidth = aspect * halfHeight;
+		halfHeight = tan(theta / 2.0f);
+		halfWidth = aspect * halfHeight;
 		origin = lookFrom;
 		w = (lookFrom - lookAt).GetNormalized();
 		u = (vUp.Cross(w)).GetNormalized();
@@ -55,11 +60,27 @@ struct Camera
 		vertical = v * 2.0f * halfHeight * focusDist;
 	}
 
-	Ray GetRay(float s, float t)
+	Ray GetRay(float s, float t, Camera &camOld)
 	{
 		Vec3 rd = RandomInUnitDisk() * lensRadius;
-		Vec3 offset = u * rd.x() + v * rd.y();
-		return Ray(origin + offset, botLeft + horizontal * s + vertical * t - origin - offset);
+		float time = time0 + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) * (time1 - time0);
+
+		Vec3 newU = (u * time + camOld.u * (1 - time));
+		Vec3 newV = (v * time + camOld.v * (1 - time));
+		Vec3 newW = (w * time + camOld.w * (1 - time));
+
+		Vec3 offset = newU * rd.x() + newV * rd.y();
+
+		Vec3 newOrigin = (origin * time + camOld.origin * (1 - time));
+
+		float newFocusDist = (focusDist * time + camOld.focusDist * (1 - time));
+		
+		Vec3 newBotLeft = newOrigin - newU * halfWidth * newFocusDist - newV * halfHeight * newFocusDist - newW * newFocusDist;
+
+		Vec3 newHorizontal = newU * 2.0f * halfWidth * newFocusDist;
+		Vec3 newVertical = newV * 2.0f * halfHeight * newFocusDist;
+
+		return Ray(newOrigin + offset, newBotLeft + newHorizontal * s + newVertical * t - newOrigin - offset, time);
 	}
 
 

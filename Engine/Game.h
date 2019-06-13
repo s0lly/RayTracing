@@ -54,11 +54,15 @@ private:
 	/*  User Variables              */
 	/********************************/
 
+	
 	Camera cam;
+	Camera camOld;
 
 	Hitable *world;
 
 	int numObjects;
+
+	int ns = 1;
 };
 
 static Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)

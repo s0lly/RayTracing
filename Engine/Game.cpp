@@ -25,7 +25,9 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	cam( gfx, Vec3(0.0f, 2.0f, 2.0f), Vec3(0.0f, 0.0f, -1.0f).GetNormalized(), Vec3(0.0f, 1.0f, 0.0f), PI / 4.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+	cam( gfx, Vec3(2.0f, 2.0f, 2.0f), Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f), PI / 4.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
+		0.1f, (Vec3(0.0f, 2.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length()),
+	camOld(gfx, Vec3(2.0f, 2.0f, 2.0f), Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f), PI / 4.0f, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 		0.1f, (Vec3(0.0f, 2.0f, 2.0f) - Vec3(0.0f, 0.0f, -1.0f)).length())
 {
 	//list[0] = new Sphere(Vec3(0.0f, 0.0f, -1.0f), 0.5f, new Lambertian(Vec3(0.1f, 0.2f, 0.5f)));
@@ -77,7 +79,7 @@ Game::Game( MainWindow& wnd )
 
 	numObjects = i;
 
-	
+	SetCursorPos(560 + gfx.ScreenWidth / 2, 315 + gfx.ScreenHeight / 2);
 }
 
 void Game::Go()
@@ -90,6 +92,8 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	camOld = cam;
+
 	if (wnd.kbd.KeyIsPressed('W'))
 	{
 		cam = Camera(gfx, cam.origin - cam.w / 10.0f, cam.lookAt - cam.w / 10.0f, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
@@ -163,6 +167,17 @@ void Game::UpdateModel()
 			cam.aperture, cam.focusDist);
 	}
 
+	if (wnd.kbd.KeyIsPressed(VK_CONTROL))
+	{
+		ns--;
+	}
+	if (wnd.kbd.KeyIsPressed(VK_SHIFT))
+	{
+		ns++;
+	}
+
+	ns = ns < 1 ? 1 : ns;
+
 	int check = wnd.mouse.GetPosY();
 	float moveUp = (float)((gfx.ScreenHeight / 2) - wnd.mouse.GetPosY()) / 2000.0f;
 	float moveSide = (float)((gfx.ScreenWidth / 2) - wnd.mouse.GetPosX()) / 2000.0f;
@@ -171,12 +186,16 @@ void Game::UpdateModel()
 	cam = Camera(gfx, cam.origin, (cam.lookAt - cam.origin).RotateAroundArbitraryAxis(cam.v, moveSide) + cam.origin, cam.vUp, cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 		cam.aperture, cam.focusDist);
 
-
-
 	cam.lookAt.GetNormalized();
+
 
 	SetCursorPos(560 + gfx.ScreenWidth / 2, 315 + gfx.ScreenHeight / 2);
 	SetCursor(NULL);
+
+	world->Update(1.0f);
+
+
+
 }
 
 
@@ -190,7 +209,7 @@ void Game::ComposeFrame()
 	{
 		float uCenter = 0.5f;
 		float vCenter = 0.5f;
-		Ray r = cam.GetRay(uCenter, vCenter);
+		Ray r = cam.GetRay(uCenter, vCenter, camOld);
 		HitRecord rec;
 		world->Hit(r, 0.0001f, 10000000000000000.0f, rec);
 		//min_t = min_t < rec.t ? min_t : rec.t;
@@ -217,11 +236,13 @@ void Game::ComposeFrame()
 	cam = Camera(gfx, cam.origin, cam.lookAt, (cam.vUp), cam.fov, (float)gfx.ScreenWidth / (float)gfx.ScreenHeight,
 		cam.aperture, cam.focusDist);
 
-	int ns = 1;
+	
 
 	auto *gfxPtr = &gfx;
 	auto *worldPtr = &world;
 	auto *camPtr = &cam;
+	auto *camOldPtr = &camOld;
+	auto *nsPtr = &ns;
 
 	int numThreads = 20;
 	int threadSize = gfx.ScreenHeight / numThreads + 1;
@@ -229,7 +250,7 @@ void Game::ComposeFrame()
 	std::vector<std::thread> threadList;
 	for (int k = 0; k < numThreads; k++)
 	{
-		threadList.push_back(std::thread([k, ns, threadSize, gfxPtr, worldPtr, camPtr]()
+		threadList.push_back(std::thread([k, nsPtr, threadSize, gfxPtr, worldPtr, camPtr, camOldPtr]()
 		{
 			for (int j = k * threadSize; (j < (k + 1) * threadSize) && (j < (gfxPtr->ScreenHeight)); j++)
 			{
@@ -238,16 +259,33 @@ void Game::ComposeFrame()
 				{
 					Vec3 col{ 0.0f, 0.0f, 0.0f };
 
-					for (int s = 0; s < ns; s++)
+					for (int s = 0; s < *nsPtr; s++)
 					{
+						if (i == gfxPtr->ScreenWidth / 2)
+						{
+							int check = 0;
+						}
 						float u = (float)(i + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfxPtr->ScreenWidth;
+						//float u = uBase;
+						//u = (2.0f * (u - 0.5f)) * camPtr->fov * (float)gfxPtr->ScreenWidth / (float)gfxPtr->ScreenHeight;
+						//float base = 1.0f - cosf(camPtr->fov * (float)gfxPtr->ScreenWidth / (float)gfxPtr->ScreenHeight);
+						//float sign = u < 0.0f ? -1.0f : 1.0f;
+						//u = 1.0f - cosf(u);
+						//u = u * sign / base;
+						//u = (u) / 2.0f + 0.5f;
+
 						float v = (float)(j + ((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1))) / (float)gfxPtr->ScreenHeight;
-						Ray r = camPtr->GetRay(u, v);
-						Vec3 p = r.PointOnRay(2.0f);
+						//float v = vBase;
+						//v = (2.0f * (v - 0.5f)) * camPtr->fov;
+						//v = cosf(v);
+						//v = (vBase - 0.5f) / v + 0.5f;
+
+						Ray r = camPtr->GetRay(u, v, *camOldPtr);
+						//Vec3 p = r.PointOnRay(2.0f);
 						col += ReturnColorFromRay(r, *worldPtr, 0);
 					}
 
-					col /= (float)ns;
+					col /= (float)(*nsPtr);
 
 					col = Vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
 
@@ -271,7 +309,7 @@ void Game::ComposeFrame()
 			if (i == gfx.ScreenWidth / 2 - 5 || i == gfx.ScreenWidth / 2 + 5 ||
 				j == gfx.ScreenHeight / 2 - 5 || j == gfx.ScreenHeight / 2 + 5)
 			{
-				gfx.PutPixel(i, j, Colors::Magenta);
+				//gfx.PutPixel(i, j, Colors::Magenta);
 			}
 		}
 	}

@@ -64,7 +64,7 @@ struct Lambertian : public Material
 	virtual bool scatter(Ray &r_in, HitRecord &rec, Vec3 &attenuation, Ray &scattered)
 	{
 		Vec3 target = rec.p + rec.normal + RandomUnitInSphere();
-		scattered = Ray(rec.p, target - rec.p);
+		scattered = Ray(rec.p, target - rec.p, r_in.time);
 		attenuation = albedo;
 		return true;
 	}
@@ -84,7 +84,7 @@ struct Metal : public Material
 	virtual bool scatter(Ray &r_in, HitRecord &rec, Vec3 &attenuation, Ray &scattered)
 	{
 		Vec3 reflected = Reflect(r_in.Direction().GetNormalized(), rec.normal);
-		scattered = Ray(rec.p, reflected + RandomUnitInSphere() * fuzziness);
+		scattered = Ray(rec.p, reflected + RandomUnitInSphere() * fuzziness, r_in.time);
 		attenuation = albedo;
 		return (scattered.Direction().Dot(rec.normal) > 0.0f);
 	}
@@ -132,11 +132,11 @@ struct Dielectric : public Material
 		}
 		if (((float)(rand() % RAND_MAX + 1) / (float)(RAND_MAX + 1)) < reflectProb)
 		{
-			scattered = Ray(rec.p, reflected);
+			scattered = Ray(rec.p, reflected, r_in.time);
 		}
 		else
 		{
-			scattered = Ray(rec.p, refracted);
+			scattered = Ray(rec.p, refracted, r_in.time);
 		}
 		return true;
 	}

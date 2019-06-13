@@ -21,6 +21,7 @@ struct HitRecord
 
 struct Hitable
 {
+	virtual void Update(float dt) = 0;
 	virtual bool Hit(Ray &r, float t_min, float t_max, HitRecord &rec) = 0;
 };
 
@@ -29,17 +30,27 @@ struct Sphere : public Hitable
 {
 	// Data
 
-	Vec3 center;
+	Vec3 centerOld, centerCurr;
 	float radius;
+	Vec3 vel;
 	Material *matPtr;
 
 	// Functions
 
 	Sphere() {}
-	Sphere(Vec3 cen, float r, Material *in_matPtr) : center(cen), radius(r), matPtr(in_matPtr) {};
+	Sphere(Vec3 cen, float r, Material *in_matPtr, Vec3 in_vel = Vec3(0.0f, 0.0f, 0.0f)) : centerOld(cen), centerCurr(cen), radius(r), vel(in_vel), matPtr(in_matPtr) {};
+	virtual void Update(float dt)
+	{
+		centerOld = centerCurr;
+		centerCurr = centerOld + vel * dt;
+	}
+	Vec3 CenterAtTime(float t)
+	{
+		return centerOld + vel * t;
+	}
 	virtual bool Hit(Ray &r, float t_min, float t_max, HitRecord &rec)
 	{
-		Vec3 oc = r.Origin() - center;
+		Vec3 oc = r.Origin() - CenterAtTime(r.time);
 		float a = r.Direction().Dot(r.Direction());
 		float b = oc.Dot(r.Direction());
 		float c = oc.Dot(oc) - radius * radius;
@@ -52,7 +63,7 @@ struct Sphere : public Hitable
 			{
 				rec.t = temp;
 				rec.p = r.PointOnRay(rec.t);
-				rec.normal = (rec.p - center) / radius;
+				rec.normal = (rec.p - CenterAtTime(r.time)) / radius;
 				rec.matPtr = matPtr;
 				return true;
 			}
@@ -61,7 +72,7 @@ struct Sphere : public Hitable
 			{
 				rec.t = temp;
 				rec.p = r.PointOnRay(rec.t);
-				rec.normal = (rec.p - center) / radius;
+				rec.normal = (rec.p - CenterAtTime(r.time)) / radius;
 				rec.matPtr = matPtr;
 				return true;
 			}
@@ -83,6 +94,13 @@ struct HitableList : public Hitable
 
 	HitableList() {}
 	HitableList(Hitable **l, int n) { list = l; listSize = n; }
+	virtual void Update(float dt)
+	{
+		for (int i = 0; i < listSize; i++)
+		{
+			list[i]->Update(dt);
+		}
+	}
 	virtual bool Hit(Ray &r, float t_min, float t_max, HitRecord &rec)
 	{
 		HitRecord tempRec;
