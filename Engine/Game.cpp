@@ -77,6 +77,8 @@ Game::Game( MainWindow& wnd )
 
 	world = new HitableList(list, i);
 
+	//bhv = new BHVNode(list, i, 0.0f, 1.0f);
+
 	numObjects = i;
 
 	SetCursorPos(560 + gfx.ScreenWidth / 2, 315 + gfx.ScreenHeight / 2);
@@ -250,8 +252,8 @@ void Game::ComposeFrame()
 	std::vector<std::thread> threadList;
 	for (int k = 0; k < numThreads; k++)
 	{
-		threadList.push_back(std::thread([k, nsPtr, threadSize, gfxPtr, worldPtr, camPtr, camOldPtr]()
-		{
+		//threadList.push_back(std::thread([k, nsPtr, threadSize, gfxPtr, worldPtr, camPtr, camOldPtr]()
+		//{
 			for (int j = k * threadSize; (j < (k + 1) * threadSize) && (j < (gfxPtr->ScreenHeight)); j++)
 			{
 
@@ -297,9 +299,9 @@ void Game::ComposeFrame()
 					gfxPtr->PutPixel(i, gfxPtr->ScreenHeight - j - 1, Color(ir, ig, ib));
 				}
 			}
-		}));
+		//}));
 	}
-	std::for_each(threadList.begin(), threadList.end(), std::mem_fn(&std::thread::join));
+	//std::for_each(threadList.begin(), threadList.end(), std::mem_fn(&std::thread::join));
 
 
 	for (int i = gfx.ScreenWidth / 2 - 5; i <= gfx.ScreenWidth / 2 + 5; i++)

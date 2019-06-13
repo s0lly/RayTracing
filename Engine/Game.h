@@ -60,6 +60,8 @@ private:
 
 	Hitable *world;
 
+	BVHNode *bhv;
+
 	int numObjects;
 
 	int ns = 1;
@@ -67,6 +69,7 @@ private:
 
 static Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
 {
+	
 
 	HitRecord rec;
 	if (world->Hit(ray, 0.0001f, 10000000000000000.0f, rec))
