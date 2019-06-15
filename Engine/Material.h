@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hitable.h"
+#include "Texture.h"
 
 static Vec3 RandomUnitInSphere()
 {
@@ -47,25 +48,31 @@ static float Schlick(float cos, float ref_idx)
 
 struct Material
 {
+	bool isLight = false;
+
 	virtual bool scatter(Ray &r_in, HitRecord &rec, Vec3 &attenuation, Ray &scattered) = 0;
+	virtual Vec3 Emitted(float u, float v, Vec3 &p)
+	{
+		return Vec3(0.0f, 0.0f, 0.0f);
+	}
 };
 
 
 struct Lambertian : public Material
 {
 	// Data
-	Vec3 albedo;
+	Texture *albedo;
 
 
 
 	// Functions
 
-	Lambertian(Vec3 &a) : albedo(a) {}
+	Lambertian(Texture *a) : albedo(a) {}
 	virtual bool scatter(Ray &r_in, HitRecord &rec, Vec3 &attenuation, Ray &scattered)
 	{
 		Vec3 target = rec.p + rec.normal + RandomUnitInSphere();
 		scattered = Ray(rec.p, target - rec.p, r_in.time);
-		attenuation = albedo;
+		attenuation = albedo->Value(rec.u, rec.v, rec.p);
 		return true;
 	}
 };
@@ -143,3 +150,19 @@ struct Dielectric : public Material
 };
 
 
+struct DiffuseLight : public Material
+{
+	Texture *emit;
+
+	DiffuseLight(Texture *e) : emit(e) { isLight = true; }
+
+	virtual bool scatter(Ray &r_in, HitRecord &rec, Vec3 &attenuation, Ray &scattered)
+	{
+		return false;
+	}
+
+	virtual Vec3 Emitted(float u, float v, Vec3 &p)
+	{
+		return emit->Value(u, v, p);
+	}
+};

@@ -32,6 +32,8 @@
 #include <thread>
 
 
+
+
 class Game
 {
 public:
@@ -64,7 +66,11 @@ private:
 
 	int numObjects;
 
-	int ns = 1;
+	int ns = 200;
+
+	int imageCounter = 0;
+
+	bool automation = false;
 };
 
 static Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
@@ -77,21 +83,28 @@ static Vec3 ReturnColorFromRay(Ray& ray, Hitable *world, int depth)
 		depth++;
 		Ray scattered;
 		Vec3 attenutation;
+		Vec3 emitted = rec.matPtr->Emitted(rec.u, rec.v, rec.p);
+		
+		if (depth == 1 && rec.matPtr->isLight == true)
+		{
+			return Vec3(0.0f, 0.0f, 0.0f);
+		}
 
 		if (depth < 50 && rec.matPtr->scatter(ray, rec, attenutation, scattered))
 		{
-			return ReturnColorFromRay(scattered, world, depth) * attenutation;
+			return emitted + ReturnColorFromRay(scattered, world, depth) * attenutation;
 		}
 		else
 		{
-			return Vec3(0.0f, 0.0f, 0.0f);
+			return emitted;// Vec3(0.0f, 0.0f, 0.0f);
 		}
 
 	}
 	else
 	{
-		Vec3 unitDirection = ray.Direction().GetNormalized();
-		float t = 0.5f * (unitDirection.y() + 1.0f);
-		return Vec3{ 1.0f, 1.0f, 1.0f } *(1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } *(t);
+		return Vec3(0.0f, 0.0f, 0.0f);
+		//Vec3 unitDirection = ray.Direction().GetNormalized();
+		//float t = 0.5f * (unitDirection.y() + 1.0f);
+		//return Vec3{ 1.0f, 1.0f, 1.0f } *(1.0f - t) + Vec3{ 0.5f, 0.7f, 1.0f } *(t);
 	}
 }

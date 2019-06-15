@@ -8,7 +8,13 @@ struct Material;
 
 
 
-
+static void GetSphereUV(Vec3 &p, float &u, float &v)
+{
+	float phi = atan2(p.z(), p.x());
+	float theta = asin(p.y());
+	u = 1.0f - (phi + PI) / (2.0f * PI);
+	v = (theta + PI / 2.0f) / PI;
+}
 
 
 struct HitRecord
@@ -17,6 +23,8 @@ struct HitRecord
 	Vec3 p;
 	Vec3 normal;
 	Material *matPtr;
+	float u, v;
+	bool isLight;
 };
 
 struct Hitable
@@ -69,6 +77,7 @@ struct Sphere : public Hitable
 				rec.p = r.PointOnRay(rec.t);
 				rec.normal = (rec.p - CenterAtTime(r.time)) / radius;
 				rec.matPtr = matPtr;
+				GetSphereUV((rec.p - CenterAtTime(r.time)) / radius, rec.u, rec.v);
 				return true;
 			}
 			temp = (-b + sqrt(discriminant)) / (a);
@@ -78,6 +87,7 @@ struct Sphere : public Hitable
 				rec.p = r.PointOnRay(rec.t);
 				rec.normal = (rec.p - CenterAtTime(r.time)) / radius;
 				rec.matPtr = matPtr;
+				GetSphereUV((rec.p - CenterAtTime(r.time)) / radius, rec.u, rec.v);
 				return true;
 			}
 		}
@@ -119,7 +129,7 @@ struct HitableList : public Hitable
 	{
 		HitRecord tempRec;
 		bool hitAnything = false;
-		double closestSoFar = t_max;
+		float closestSoFar = t_max;
 		for (int i = 0; i < listSize; i++)
 		{
 			if (list[i]->Hit(r, t_min, closestSoFar, tempRec))

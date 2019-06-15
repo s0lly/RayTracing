@@ -121,7 +121,7 @@ struct Vec3
 	}
 	inline float length()
 	{
-		return sqrt(lengthSqrd());
+		return (float)sqrt(lengthSqrd());
 	}
 	
 
